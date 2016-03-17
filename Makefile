@@ -1,18 +1,20 @@
 GASNET_VERSION = GASNet-1.26.0
 
 ifeq ($(findstring daint,$(shell uname -n)),daint)
-ICTYPE = aries
 CROSS_CONFIGURE = cross-configure-crayxc-linux
-else
-ifeq ($(findstring titan,$(shell uname -n)),titan)
-ICTYPE = gemini
-CROSS_CONFIGURE = cross-configure-crayxe-linux
-else
-ICTYPE = default
 endif
+ifeq ($(findstring excalibur,$(shell uname -n)),excalibur)
+CROSS_CONFIGURE = cross-configure-crayxc-linux
+endif
+ifeq ($(findstring titan,$(shell uname -n)),titan)
+CROSS_CONFIGURE = cross-configure-crayxe-linux
 endif
 
-RELEASE_CONFIG = configs/config.$(ICTYPE).release
+ifndef CONDUIT
+$(error CONDUIT must be set to ibv, gemini, or aries)
+endif
+
+RELEASE_CONFIG = configs/config.$(CONDUIT).release
 
 .PHONY: release
 
@@ -36,7 +38,7 @@ ifdef CROSS_CONFIGURE
 else
 # normal configure path
 	mkdir release
-	cd release; CC='mpicc -fPIC' CXX='mpicxx -fPIC' ../$(GASNET_VERSION)/configure --prefix=`pwd` `cat $(realpath $(RELEASE_CONFIG))`
+	cd release; CC='mpicc -fPIC' CXX='mpicxx -fPIC' ../$(GASNET_VERSION)/configure --prefix=`pwd` --with-mpi-cflags=-fPIC `cat $(realpath $(RELEASE_CONFIG))`
 endif
 
 $(GASNET_VERSION)/configure : $(GASNET_VERSION).tar.gz
