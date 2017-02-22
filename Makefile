@@ -6,6 +6,9 @@ endif
 ifeq ($(findstring excalibur,$(shell uname -n)),excalibur)
 CROSS_CONFIGURE = cross-configure-crayxc-linux
 endif
+ifeq ($(findstring cori,$(shell uname -n)),cori)
+CROSS_CONFIGURE = cross-configure-crayxc-linux
+endif
 ifeq ($(findstring titan,$(shell uname -n)),titan)
 CROSS_CONFIGURE = cross-configure-crayxe-linux
 endif
