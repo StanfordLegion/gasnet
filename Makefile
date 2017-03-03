@@ -1,4 +1,4 @@
-GASNET_VERSION = GASNet-1.26.0
+GASNET_VERSION = GASNet-1.28.0
 
 ifeq ($(findstring daint,$(shell uname -n)),daint)
 CROSS_CONFIGURE = cross-configure-crayxc-linux
