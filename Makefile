@@ -1,16 +1,22 @@
-GASNET_VERSION = GASNet-1.28.0
+GASNET_VERSION = GASNet-1.30.0
+
+# these patches are applied to the unpacked GASNet source directory before
+#  running configure
+PATCHES =
+# mpifix.patch not needed after 1.28.2
+#PATCHES += patches/mpifix.patch
 
 ifeq ($(findstring daint,$(shell uname -n)),daint)
-CROSS_CONFIGURE = cross-configure-crayxc-linux
+CROSS_CONFIGURE = cross-configure-cray-aries-slurm
 endif
 ifeq ($(findstring excalibur,$(shell uname -n)),excalibur)
-CROSS_CONFIGURE = cross-configure-crayxc-linux
+CROSS_CONFIGURE = cross-configure-cray-aries-slurm
 endif
 ifeq ($(findstring cori,$(shell uname -n)),cori)
-CROSS_CONFIGURE = cross-configure-crayxc-linux
+CROSS_CONFIGURE = cross-configure-cray-aries-slurm
 endif
 ifeq ($(findstring titan,$(shell uname -n)),titan)
-CROSS_CONFIGURE = cross-configure-crayxe-linux
+CROSS_CONFIGURE = cross-configure-cray-gemini-alps
 endif
 
 ifndef CONDUIT
@@ -46,4 +52,5 @@ endif
 
 $(GASNET_VERSION)/configure : $(GASNET_VERSION).tar.gz
 	tar -zxf $<
+	$(foreach p,$(PATCHES),patch -p1 -d$(GASNET_VERSION) < $p &&) /bin/true
 	touch -c $@
