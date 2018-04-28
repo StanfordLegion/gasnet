@@ -31,7 +31,7 @@ RELEASE_CONFIG = configs/config.$(CONDUIT).release
 .PHONY: release
 
 release : $(RELEASE_DIR)/config.status
-	make -C release install
+	make -C $(RELEASE_DIR) install
 
 $(RELEASE_DIR)/config.status : $(RELEASE_CONFIG) $(GASNET_VERSION)/configure
 ifdef CROSS_CONFIGURE
