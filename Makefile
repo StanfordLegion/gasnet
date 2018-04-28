@@ -23,6 +23,7 @@ ifndef CONDUIT
 $(error CONDUIT must be set to ibv, gemini, or aries)
 endif
 
+BUILD_DIR := $(shell pwd)
 RELEASE_DIR ?= $(shell pwd)/release
 
 RELEASE_CONFIG = configs/config.$(CONDUIT).release
@@ -45,11 +46,11 @@ ifdef CROSS_CONFIGURE
 	chmod a+x $(RELEASE_DIR)/CC.custom
 	# use our custom cc/CC wrappers and also force -fPIC
 	/bin/sed "s/'\(cc\)'/'\1.custom -fPIC'/I" < $(GASNET_VERSION)/other/contrib/$(CROSS_CONFIGURE) > $(GASNET_VERSION)/cross-configure
-	cd release; PATH=`pwd`:$$PATH /bin/sh ../$(GASNET_VERSION)/cross-configure --prefix=$(RELEASE_DIR) `cat $(realpath $(RELEASE_CONFIG))`
+	cd release; PATH=`pwd`:$$PATH /bin/sh $(BUILD_DIR)/$(GASNET_VERSION)/cross-configure --prefix=$(RELEASE_DIR) `cat $(realpath $(RELEASE_CONFIG))`
 else
 # normal configure path
 	mkdir -p $(RELEASE_DIR)
-	cd $(RELEASE_DIR); CC='mpicc -fPIC' CXX='mpicxx -fPIC' ../$(GASNET_VERSION)/configure --prefix=$(RELEASE_DIR) --with-mpi-cflags=-fPIC `cat $(realpath $(RELEASE_CONFIG))`
+	cd $(RELEASE_DIR); CC='mpicc -fPIC' CXX='mpicxx -fPIC' $(BUILD_DIR)/$(GASNET_VERSION)/configure --prefix=$(RELEASE_DIR) --with-mpi-cflags=-fPIC `cat $(realpath $(RELEASE_CONFIG))`
 endif
 
 $(GASNET_VERSION)/configure : $(GASNET_VERSION).tar.gz
