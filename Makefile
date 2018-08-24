@@ -1,4 +1,4 @@
-GASNET_VERSION = GASNet-1.30.0
+GASNET_VERSION ?= GASNet-1.30.0
 
 # these patches are applied to the unpacked GASNet source directory before
 #  running configure
@@ -54,6 +54,13 @@ else
 endif
 
 $(GASNET_VERSION)/configure : $(GASNET_VERSION).tar.gz
-	tar -zxf $<
+	mkdir -p $(GASNET_VERSION)
+	# make sure tar unpacks to the right directory even if the root directory name does not match
+	tar -zxf $< --strip-components=1 -C $(GASNET_VERSION)
 	$(foreach p,$(PATCHES),patch -p1 -d$(GASNET_VERSION) < $p &&) /bin/true
 	touch -c $@
+
+# GASNet-EX has not been publicly released yet - contact the GASNet-EX team for access to pre-releases
+GASNet-EX-snapshot.tar.gz :
+	echo 'Downloading GASNet-EX snapshot tarball...'
+	@wget -q -O $@ $(GASNETEX_SNAPSHOT_SOURCE_URL)
