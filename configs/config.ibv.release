@@ -13,4 +13,4 @@
 --disable-pshm
 --disable-aligned-segments
 --enable-ibv
---with-ibv-max-hcas=4
+--with-ibv-max-hcas=1
