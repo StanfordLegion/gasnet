@@ -27,36 +27,43 @@ $(error CONDUIT must be set to ibv, gemini, or aries)
 endif
 
 BUILD_DIR := $(shell pwd)
-RELEASE_DIR ?= $(shell pwd)/release
 
-RELEASE_CONFIG = configs/config.$(CONDUIT).release
+ifeq ($(GASNET_DEBUG),1)
+GASNET_INSTALL_DIR ?= $(shell pwd)/debug
+EXTRA_CONFIGURE_ARGS = --enable-debug
+else
+GASNET_INSTALL_DIR ?= $(shell pwd)/release
+EXTRA_CONFIGURE_ARGS =
+endif
 
-.PHONY: release
+GASNET_CONFIG ?= configs/config.$(CONDUIT).release
 
-release : $(RELEASE_DIR)/config.status
-	make -C $(RELEASE_DIR) install
+.PHONY: install
 
-$(RELEASE_DIR)/config.status : $(RELEASE_CONFIG) $(GASNET_VERSION)/configure
+install : $(GASNET_INSTALL_DIR)/config.status
+	make -C $(GASNET_INSTALL_DIR) install
+
+$(GASNET_INSTALL_DIR)/config.status : $(GASNET_CONFIG) $(GASNET_VERSION)/configure
 ifdef CROSS_CONFIGURE
 # Cray systems require cross-compiling fun
-	mkdir -p $(RELEASE_DIR)
+	mkdir -p $(GASNET_INSTALL_DIR)
 	# WAH for issue with new Cray cc/CC not including PMI stuff
-	echo '#!/bin/bash' > $(RELEASE_DIR)/cc.custom
-	echo 'cc "$$@" $$CRAY_UGNI_POST_LINK_OPTS $$CRAY_PMI_POST_LINK_OPTS -Wl,--as-needed,-lugni,-lpmi,--no-as-needed' >> $(RELEASE_DIR)/cc.custom
-	chmod a+x $(RELEASE_DIR)/cc.custom
-	echo '#!/bin/bash' > $(RELEASE_DIR)/CC.custom
-	echo 'CC "$$@" $$CRAY_UGNI_POST_LINK_OPTS $$CRAY_PMI_POST_LINK_OPTS -Wl,--as-needed,-lugni,-lpmi,--no-as-needed' >> $(RELEASE_DIR)/CC.custom
-	chmod a+x $(RELEASE_DIR)/CC.custom
+	echo '#!/bin/bash' > $(GASNET_INSTALL_DIR)/cc.custom
+	echo 'cc "$$@" $$CRAY_UGNI_POST_LINK_OPTS $$CRAY_PMI_POST_LINK_OPTS -Wl,--as-needed,-lugni,-lpmi,--no-as-needed' >> $(GASNET_INSTALL_DIR)/cc.custom
+	chmod a+x $(GASNET_INSTALL_DIR)/cc.custom
+	echo '#!/bin/bash' > $(GASNET_INSTALL_DIR)/CC.custom
+	echo 'CC "$$@" $$CRAY_UGNI_POST_LINK_OPTS $$CRAY_PMI_POST_LINK_OPTS -Wl,--as-needed,-lugni,-lpmi,--no-as-needed' >> $(GASNET_INSTALL_DIR)/CC.custom
+	chmod a+x $(GASNET_INSTALL_DIR)/CC.custom
 	# use our custom cc/CC wrappers and also force -fPIC
 	/bin/sed "s/'\(cc\)'/'\1.custom -fPIC'/I" < $(GASNET_VERSION)/other/contrib/$(CROSS_CONFIGURE) > $(GASNET_VERSION)/cross-configure
-	cd release; PATH=`pwd`:$$PATH /bin/sh $(BUILD_DIR)/$(GASNET_VERSION)/cross-configure --prefix=$(RELEASE_DIR) `cat $(realpath $(RELEASE_CONFIG))`
+	cd release; PATH=`pwd`:$$PATH /bin/sh $(BUILD_DIR)/$(GASNET_VERSION)/cross-configure --prefix=$(GASNET_INSTALL_DIR) `cat $(realpath $(GASNET_CONFIG))` $(EXTRA_CONFIGURE_ARGS)
 else
 # normal configure path
-	mkdir -p $(RELEASE_DIR)
+	mkdir -p $(GASNET_INSTALL_DIR)
 ifeq ($(OVERRIDE_CC_AND_CXX),1)
-	cd $(RELEASE_DIR); CC='mpicc -fPIC' CXX='mpicxx -fPIC' $(BUILD_DIR)/$(GASNET_VERSION)/configure --prefix=$(RELEASE_DIR) --with-mpi-cflags=-fPIC `cat $(realpath $(RELEASE_CONFIG))`
+	cd $(GASNET_INSTALL_DIR); CC='mpicc -fPIC' CXX='mpicxx -fPIC' $(BUILD_DIR)/$(GASNET_VERSION)/configure --prefix=$(GASNET_INSTALL_DIR) --with-mpi-cflags=-fPIC `cat $(realpath $(GASNET_CONFIG))` $(EXTRA_CONFIGURE_ARGS)
 else
-	cd $(RELEASE_DIR); $(BUILD_DIR)/$(GASNET_VERSION)/configure --prefix=$(RELEASE_DIR) --with-cflags=-fPIC --with-mpi-cflags=-fPIC `cat $(realpath $(RELEASE_CONFIG))`
+	cd $(GASNET_INSTALL_DIR); $(BUILD_DIR)/$(GASNET_VERSION)/configure --prefix=$(GASNET_INSTALL_DIR) --with-cflags=-fPIC --with-mpi-cflags=-fPIC `cat $(realpath $(GASNET_CONFIG))` $(EXTRA_CONFIGURE_ARGS)
 endif
 endif
 
