@@ -6,6 +6,9 @@ PATCHES =
 # mpifix.patch not needed after 1.28.2
 #PATCHES += patches/mpifix.patch
 
+# overriding of CC and CXX should not be needed for 1.30.0 and later
+OVERRIDE_CC_AND_CXX ?= 0
+
 ifeq ($(findstring daint,$(shell uname -n)),daint)
 CROSS_CONFIGURE = cross-configure-cray-aries-slurm
 endif
@@ -50,7 +53,11 @@ ifdef CROSS_CONFIGURE
 else
 # normal configure path
 	mkdir -p $(RELEASE_DIR)
+ifeq ($(OVERRIDE_CC_AND_CXX),1)
 	cd $(RELEASE_DIR); CC='mpicc -fPIC' CXX='mpicxx -fPIC' $(BUILD_DIR)/$(GASNET_VERSION)/configure --prefix=$(RELEASE_DIR) --with-mpi-cflags=-fPIC `cat $(realpath $(RELEASE_CONFIG))`
+else
+	cd $(RELEASE_DIR); $(BUILD_DIR)/$(GASNET_VERSION)/configure --prefix=$(RELEASE_DIR) --with-cflags=-fPIC --with-mpi-cflags=-fPIC `cat $(realpath $(RELEASE_CONFIG))`
+endif
 endif
 
 $(GASNET_VERSION)/configure : $(GASNET_VERSION).tar.gz
