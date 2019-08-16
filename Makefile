@@ -1,4 +1,4 @@
-GASNET_VERSION ?= GASNet-EX-2019.3.0
+GASNET_VERSION ?= GASNet-2019.6.0
 
 # these patches are applied to the unpacked GASNet source directory before
 #  running configure
@@ -23,7 +23,7 @@ CROSS_CONFIGURE = cross-configure-cray-gemini-alps
 endif
 
 ifndef CONDUIT
-$(error CONDUIT must be set to ibv, gemini, or aries)
+$(error CONDUIT must be set to a supported GASNet conduit name)
 endif
 
 BUILD_DIR := $(shell pwd)
