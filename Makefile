@@ -56,7 +56,7 @@ ifdef CROSS_CONFIGURE
 	chmod a+x $(GASNET_INSTALL_DIR)/CC.custom
 	# use our custom cc/CC wrappers and also force -fPIC
 	/bin/sed "s/'\(cc\)'/'\1.custom -fPIC'/I" < $(GASNET_VERSION)/other/contrib/$(CROSS_CONFIGURE) > $(GASNET_VERSION)/cross-configure
-	cd release; PATH=`pwd`:$$PATH /bin/sh $(BUILD_DIR)/$(GASNET_VERSION)/cross-configure --prefix=$(GASNET_INSTALL_DIR) `cat $(realpath $(GASNET_CONFIG))` $(GASNET_EXTRA_CONFIGURE_ARGS)
+	cd $(GASNET_INSTALL_DIR); PATH=`pwd`:$$PATH /bin/sh $(BUILD_DIR)/$(GASNET_VERSION)/cross-configure --prefix=$(GASNET_INSTALL_DIR) `cat $(realpath $(GASNET_CONFIG))` $(GASNET_EXTRA_CONFIGURE_ARGS)
 else
 # normal configure path
 	mkdir -p $(GASNET_INSTALL_DIR)
