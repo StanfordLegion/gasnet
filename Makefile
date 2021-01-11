@@ -26,7 +26,15 @@ ifndef CONDUIT
 $(error CONDUIT must be set to a supported GASNet conduit name)
 endif
 
-BUILD_DIR := $(shell pwd)
+# there are three relevant directories for a build:
+#  GASNET_SOURCE_DIR - directory in which the tarball is unpacked
+#  GASNET_BUILD_DIR  - directory in which configure is run and build performed
+#  GASNET_INSTALL_DIR - directory where finished build is installed
+#
+# it is possible (and the default) to have the build and install directories
+#  be the same
+GASNET_SOURCE_DIR := $(shell pwd)/$(GASNET_VERSION)
+GASNET_BUILD_DIR ?= $(GASNET_INSTALL_DIR)
 
 ifeq ($(GASNET_DEBUG),1)
 GASNET_INSTALL_DIR ?= $(shell pwd)/debug
@@ -38,40 +46,43 @@ endif
 
 GASNET_CONFIG ?= configs/config.$(CONDUIT).release
 
+# extra CFLAGS needed (e.g. -fPIC if gasnet will be linked into a shared lib)
+GASNET_CFLAGS ?= -fPIC
+
 .PHONY: install
 
-install : $(GASNET_INSTALL_DIR)/config.status
-	make -C $(GASNET_INSTALL_DIR) install
+install : $(GASNET_BUILD_DIR)/config.status
+	make -C $(GASNET_BUILD_DIR) install
 
-$(GASNET_INSTALL_DIR)/config.status : $(GASNET_CONFIG) $(GASNET_VERSION)/configure
+$(GASNET_BUILD_DIR)/config.status : $(GASNET_CONFIG) $(GASNET_SOURCE_DIR)/configure
 ifdef CROSS_CONFIGURE
 # Cray systems require cross-compiling fun
-	mkdir -p $(GASNET_INSTALL_DIR)
+	mkdir -p $(GASNET_BUILD_DIR)
 	# WAH for issue with new Cray cc/CC not including PMI stuff
-	echo '#!/bin/bash' > $(GASNET_INSTALL_DIR)/cc.custom
-	echo 'cc "$$@" $$CRAY_UGNI_POST_LINK_OPTS $$CRAY_PMI_POST_LINK_OPTS -Wl,--as-needed,-lugni,-lpmi,--no-as-needed' >> $(GASNET_INSTALL_DIR)/cc.custom
-	chmod a+x $(GASNET_INSTALL_DIR)/cc.custom
-	echo '#!/bin/bash' > $(GASNET_INSTALL_DIR)/CC.custom
-	echo 'CC "$$@" $$CRAY_UGNI_POST_LINK_OPTS $$CRAY_PMI_POST_LINK_OPTS -Wl,--as-needed,-lugni,-lpmi,--no-as-needed' >> $(GASNET_INSTALL_DIR)/CC.custom
-	chmod a+x $(GASNET_INSTALL_DIR)/CC.custom
-	# use our custom cc/CC wrappers and also force -fPIC
-	/bin/sed "s/'\(cc\)'/'\1.custom -fPIC'/I" < $(GASNET_VERSION)/other/contrib/$(CROSS_CONFIGURE) > $(GASNET_VERSION)/cross-configure
-	cd $(GASNET_INSTALL_DIR); PATH=`pwd`:$$PATH /bin/sh $(BUILD_DIR)/$(GASNET_VERSION)/cross-configure --prefix=$(GASNET_INSTALL_DIR) `cat $(realpath $(GASNET_CONFIG))` $(GASNET_EXTRA_CONFIGURE_ARGS)
+	echo '#!/bin/bash' > $(GASNET_BUILD_DIR)/cc.custom
+	echo 'cc "$$@" $$CRAY_UGNI_POST_LINK_OPTS $$CRAY_PMI_POST_LINK_OPTS -Wl,--as-needed,-lugni,-lpmi,--no-as-needed' >> $(GASNET_BUILD_DIR)/cc.custom
+	chmod a+x $(GASNET_BUILD_DIR)/cc.custom
+	echo '#!/bin/bash' > $(GASNET_BUILD_DIR)/CC.custom
+	echo 'CC "$$@" $$CRAY_UGNI_POST_LINK_OPTS $$CRAY_PMI_POST_LINK_OPTS -Wl,--as-needed,-lugni,-lpmi,--no-as-needed' >> $(GASNET_BUILD_DIR)/CC.custom
+	chmod a+x $(GASNET_BUILD_DIR)/CC.custom
+	# use our custom cc/CC wrappers and also force GASNET_CFLAGS
+	/bin/sed "s/'\(cc\)'/'\1.custom $(GASNET_CFLAGS)'/I" < $(GASNET_SOURCE_DIR)/other/contrib/$(CROSS_CONFIGURE) > $(GASNET_SOURCE_DIR)/cross-configure
+	cd $(GASNET_BUILD_DIR); PATH=`pwd`:$$PATH /bin/sh $(GASNET_SOURCE_DIR)/cross-configure --prefix=$(GASNET_INSTALL_DIR) `cat $(realpath $(GASNET_CONFIG))` $(GASNET_EXTRA_CONFIGURE_ARGS)
 else
 # normal configure path
-	mkdir -p $(GASNET_INSTALL_DIR)
+	mkdir -p $(GASNET_BUILD_DIR)
 ifeq ($(OVERRIDE_CC_AND_CXX),1)
-	cd $(GASNET_INSTALL_DIR); CC='mpicc -fPIC' CXX='mpicxx -fPIC' $(BUILD_DIR)/$(GASNET_VERSION)/configure --prefix=$(GASNET_INSTALL_DIR) --with-mpi-cflags=-fPIC `cat $(realpath $(GASNET_CONFIG))` $(GASNET_EXTRA_CONFIGURE_ARGS)
+	cd $(GASNET_BUILD_DIR); CC='mpicc $(GASNET_CFLAGS)' CXX='mpicxx $(GASNET_CFLAGS)' $(GASNET_SOURCE_DIR)/configure --prefix=$(GASNET_INSTALL_DIR) --with-mpi-cflags="$(GASNET_CFLAGS)" `cat $(realpath $(GASNET_CONFIG))` $(GASNET_EXTRA_CONFIGURE_ARGS)
 else
-	cd $(GASNET_INSTALL_DIR); $(BUILD_DIR)/$(GASNET_VERSION)/configure --prefix=$(GASNET_INSTALL_DIR) --with-cflags=-fPIC --with-mpi-cflags=-fPIC `cat $(realpath $(GASNET_CONFIG))` $(GASNET_EXTRA_CONFIGURE_ARGS)
+	cd $(GASNET_BUILD_DIR); $(GASNET_SOURCE_DIR)/configure --prefix=$(GASNET_INSTALL_DIR) --with-cflags="$(GASNET_CFLAGS)" --with-mpi-cflags="$(GASNET_CFLAGS)" `cat $(realpath $(GASNET_CONFIG))` $(GASNET_EXTRA_CONFIGURE_ARGS)
 endif
 endif
 
-$(GASNET_VERSION)/configure : $(GASNET_VERSION).tar.gz
-	mkdir -p $(GASNET_VERSION)
+$(GASNET_SOURCE_DIR)/configure : $(GASNET_VERSION).tar.gz
+	mkdir -p $(GASNET_SOURCE_DIR)
 	# make sure tar unpacks to the right directory even if the root directory name does not match
-	tar -zxf $< --strip-components=1 -C $(GASNET_VERSION)
-	$(foreach p,$(PATCHES),patch -p1 -d$(GASNET_VERSION) < $p &&) /bin/true
+	tar -zxf $< --strip-components=1 -C $(GASNET_SOURCE_DIR)
+	$(foreach p,$(PATCHES),patch -p1 -d$(GASNET_SOURCE_DIR) < $p &&) /bin/true
 	touch -c $@
 
 # the GASNet-EX team makes prerelease snapshots available if you ask nicely -
