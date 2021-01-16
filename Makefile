@@ -85,7 +85,8 @@ $(GASNET_SOURCE_DIR)/configure : $(GASNET_VERSION).tar.gz
 	$(foreach p,$(PATCHES),patch -p1 -d$(GASNET_SOURCE_DIR) < $p &&) /bin/true
 	touch -c $@
 
-# GASNet-EX has not been publicly released yet - contact the GASNet-EX team for access to pre-releases
+# the GASNet-EX team makes prerelease snapshots available if you ask nicely -
+#  this rule is a helper to automatically download one of those
 GASNet-EX-snapshot.tar.gz :
 	echo 'Downloading GASNet-EX snapshot tarball...'
 	@wget -q -O $@ $(GASNETEX_SNAPSHOT_SOURCE_URL)
