@@ -1,4 +1,4 @@
-GASNET_VERSION ?= GASNet-2020.11.0-memory_kinds_prototype
+GASNET_VERSION ?= GASNet-2021.3.0
 
 # these patches are applied to the unpacked GASNet source directory before
 #  running configure

@@ -13,4 +13,5 @@
 --disable-pshm
 --disable-aligned-segments
 --enable-ibv
---with-ibv-max-hcas=1
+--with-ibv-max-hcas=4
+--enable-kind-cuda-uva=probe
