@@ -14,4 +14,4 @@
 --disable-aligned-segments
 --enable-ibv
 --with-ibv-max-hcas=4
---enable-kind-cuda-uva=probe
+--enable-kind-cuda-uva
