@@ -1,0 +1,19 @@
+*** GASNet-2021.9.0/gasnet_internal.c	2021-09-29 13:26:37.000000000 -0700
+--- GASNet-2021.9.0-off-by-one-fix/gasnet_internal.c	2022-01-14 19:08:24.979906546 -0800
+***************
+*** 2112,2118 ****
+  
+  void gasneti_segtbl_del(gasneti_Segment_t seg) {
+    gasneti_mutex_lock(&_gasneti_segtbl_lock);
+!   gasneti_Segment_t last = _gasneti_segtbl[_gasneti_segtbl_count--];
+    last->_opaque_container_use = seg->_opaque_container_use;
+    _gasneti_segtbl[last->_opaque_container_use] = last;
+    // TODO: realloc to shrink if we think this would lead to significant savings?
+--- 2112,2118 ----
+  
+  void gasneti_segtbl_del(gasneti_Segment_t seg) {
+    gasneti_mutex_lock(&_gasneti_segtbl_lock);
+!   gasneti_Segment_t last = _gasneti_segtbl[--_gasneti_segtbl_count];
+    last->_opaque_container_use = seg->_opaque_container_use;
+    _gasneti_segtbl[last->_opaque_container_use] = last;
+    // TODO: realloc to shrink if we think this would lead to significant savings?

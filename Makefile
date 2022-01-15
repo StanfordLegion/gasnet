@@ -5,6 +5,10 @@ GASNET_VERSION ?= GASNet-2021.9.0
 PATCHES =
 # mpifix.patch not needed after 1.28.2
 #PATCHES += patches/mpifix.patch
+# off-by-one-fix.patch needed for bug #4355
+ifeq ($(GASNET_VERSION),GASNet-2021.9.0)
+PATCHES += patches/off-by-one-fix.patch
+endif
 
 ifeq ($(findstring daint,$(shell uname -n)),daint)
 CROSS_CONFIGURE ?= cross-configure-cray-aries-slurm
