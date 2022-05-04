@@ -18,10 +18,12 @@ endif
 ifeq ($(origin CROSS_CONFIGURE),undefined)
   # try to detect appropriate cross-configure for Cray systems
   ifdef CRAYPE_NETWORK_TARGET
-    ifneq (,$(shell which srun 2> /dev/null))
-      CROSS_CONFIGURE = cross-configure-cray-$(CRAYPE_NETWORK_TARGET)-slurm
-    else ifneq (,$(shell which aprun 2> /dev/null))
-      CROSS_CONFIGURE = cross-configure-cray-$(CRAYPE_NETWORK_TARGET)-alps
+    ifneq ($(CRAYPE_NETWORK_TARGET), ofi)
+      ifneq (,$(shell which srun 2> /dev/null))
+        CROSS_CONFIGURE = cross-configure-cray-$(CRAYPE_NETWORK_TARGET)-slurm
+      else ifneq (,$(shell which aprun 2> /dev/null))
+        CROSS_CONFIGURE = cross-configure-cray-$(CRAYPE_NETWORK_TARGET)-alps
+      endif
     endif
   endif
   # if we did set something, tell the user so they can override if needed
