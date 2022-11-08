@@ -1,5 +1,5 @@
 --enable-segment-fast
---enable-pshm
+--disable-pshm
 --with-segment-mmap-max=16GB
 --disable-seq
 --disable-parsync
