@@ -9,6 +9,5 @@
 --disable-mpi
 --disable-smp
 --enable-pshm
---disable-aligned-segments
 --disable-mpi-compat
 --enable-pmi

@@ -6,5 +6,4 @@
 --disable-udp
 --enable-mpi-compat
 --enable-mpi
---disable-aligned-segments
 --disable-ibv

@@ -10,7 +10,6 @@
 --disable-portals
 --disable-mpi
 --disable-smp
---disable-aligned-segments
 --disable-ibv
 --enable-ofi
 --with-ofi-provider=cxi

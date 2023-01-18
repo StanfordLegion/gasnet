@@ -9,5 +9,4 @@
 --disable-portals
 --disable-mpi
 --disable-smp
---disable-aligned-segments
 --enable-mpi-compat
