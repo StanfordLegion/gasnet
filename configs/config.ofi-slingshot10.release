@@ -3,13 +3,9 @@
 --enable-par
 --disable-seq
 --disable-parsync
---disable-udp
 --enable-mpi-compat
 --enable-pthreads
---disable-portals
---disable-mpi
---disable-smp
---disable-ibv
+--disable-auto-conduit-detect
 --enable-ofi
 --with-ofi-provider="verbs;ofi_rxm"
 --with-mpi-cc=cc

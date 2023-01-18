@@ -2,7 +2,6 @@
 --disable-pshm
 --disable-seq
 --disable-parsync
---disable-udp
 --enable-mpi-compat
+--disable-auto-conduit-detect
 --enable-mpi
---disable-ibv

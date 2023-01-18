@@ -4,8 +4,6 @@
 --disable-seq
 --disable-parsync
 --enable-pthreads
+--disable-auto-conduit-detect
 --enable-aries
---disable-portals
---disable-mpi
---disable-smp
 --enable-mpi-compat

@@ -1,9 +1,7 @@
 --enable-segment-fast
 --enable-pshm
 --disable-seq
+--disable-auto-conduit-detect
 --enable-smp
 --disable-parsync
---disable-udp
 --enable-mpi-compat
---disable-mpi
---disable-ibv
