@@ -1,11 +1,14 @@
 --enable-segment-fast
---enable-pshm
 --enable-par
 --disable-seq
 --disable-parsync
---enable-mpi-compat
 --enable-pthreads
+
 --disable-auto-conduit-detect
 --enable-ibv
+
+--enable-pshm
+--enable-mpi-compat
+
 --with-ibv-max-hcas=4
 --enable-kind-cuda-uva=probe

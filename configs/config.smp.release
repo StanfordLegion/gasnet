@@ -1,7 +1,11 @@
 --enable-segment-fast
---enable-pshm
+--enable-par
 --disable-seq
+--disable-parsync
+--enable-pthreads
+
 --disable-auto-conduit-detect
 --enable-smp
---disable-parsync
+
+--enable-pshm
 --enable-mpi-compat
