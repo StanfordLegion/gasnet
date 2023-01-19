@@ -1,0 +1,13 @@
+--enable-segment-fast
+--enable-par
+--disable-seq
+--disable-parsync
+--enable-pthreads
+
+--disable-auto-conduit-detect
+--enable-ofi
+
+--enable-pshm
+--disable-mpi-compat
+
+--with-ofi-provider=psm2

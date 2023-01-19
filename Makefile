@@ -3,8 +3,10 @@ GASNET_VERSION ?= GASNet-2022.9.2
 # these patches are applied to the unpacked GASNet source directory before
 #  running configure
 PATCHES =
-# mpifix.patch not needed after 1.28.2
-#PATCHES += patches/mpifix.patch
+ifneq ($(findstring GASNet-2022.9,$(GASNET_VERSION)),)
+# ofi-warning.patch silences a harmless warning for ofi-conduit/Omni-Path on 2022.9.[02]
+PATCHES += patches/ofi-warning.patch
+endif
 
 ifeq ($(findstring daint,$(shell uname -n)),daint)
 CROSS_CONFIGURE ?= cross-configure-cray-aries-slurm
