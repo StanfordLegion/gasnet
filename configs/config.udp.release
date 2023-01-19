@@ -1,10 +1,11 @@
 --enable-segment-fast
---enable-pshm
---with-segment-mmap-max=16GB
+--enable-par
 --disable-seq
 --disable-parsync
+--enable-pthreads
+
+--disable-auto-conduit-detect
 --enable-udp
+
+--enable-pshm
 --enable-mpi-compat
---disable-mpi
---disable-aligned-segments
---disable-ibv
