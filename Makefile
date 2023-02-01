@@ -6,6 +6,8 @@ PATCHES =
 ifneq ($(findstring GASNet-2022.9,$(GASNET_VERSION)),)
 # ofi-warning.patch silences a harmless warning for ofi-conduit/Omni-Path on 2022.9.[02]
 PATCHES += patches/ofi-warning.patch
+# ofi-old-psm2.patch fixes support for libfabric < 1.10 for ofi-conduit/Omni-Path on 2022.9.[02]
+PATCHES += patches/ofi-old-psm2.patch
 endif
 
 ifeq ($(findstring daint,$(shell uname -n)),daint)
