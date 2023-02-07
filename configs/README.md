@@ -1,9 +1,8 @@
 The files in this directory contain the configure options for each canned config.
 
 These options currently assume use of the following GASNet version range:
-  GASNet 1.32.0 or later 
-   -OR-
-  GASNet-EX 2021.3.0 or later
+
+* GASNet-EX 2021.3.0 or later
 
 Each file name identifies the (unique) GASNet conduit in use by that config.
 The options in each config file are sorted for uniformity and readability
