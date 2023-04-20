@@ -9,3 +9,5 @@
 
 --enable-pshm
 --enable-mpi-compat
+
+--with-aries-max-medium=16320
