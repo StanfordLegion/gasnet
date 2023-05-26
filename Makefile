@@ -37,8 +37,15 @@ ifeq ($(origin CROSS_CONFIGURE),undefined)
   endif
 endif
 
-ifndef CONDUIT
-$(error CONDUIT must be set to a supported GASNet conduit name)
+LEGION_GASNET_CONDUIT ?= $(CONDUIT)
+ifndef LEGION_GASNET_CONDUIT
+$(error LEGION_GASNET_CONDUIT must be set to a supported GASNet conduit name)
+endif
+
+ifeq ($(LEGION_GASNET_CONDUIT),ofi)
+ifndef LEGION_GASNET_SYSTEM
+$(error LEGION_GASNET_CONDUIT=ofi requires that LEGION_GASNET_SYSTEM must be set)
+endif
 endif
 
 # there are three relevant directories for a build:
@@ -65,7 +72,11 @@ else
 CONFIGURE ?= $(GASNET_SOURCE_DIR)/cross-configure
 endif
 
-GASNET_CONFIG ?= configs/config.$(CONDUIT).release
+ifndef LEGION_GASNET_SYSTEM
+GASNET_CONFIG ?= configs/config.$(LEGION_GASNET_CONDUIT).release
+else
+GASNET_CONFIG ?= configs/config.$(LEGION_GASNET_CONDUIT)-$(LEGION_GASNET_SYSTEM).release
+endif
 
 # extra CFLAGS needed (e.g. -fPIC if gasnet will be linked into a shared lib)
 GASNET_CFLAGS ?= -fPIC
