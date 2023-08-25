@@ -10,7 +10,7 @@
 --enable-pshm
 --enable-mpi-compat
 
---with-ofi-provider="verbs;ofi_rxm"
+--with-ofi-provider=verbs:ofi_rxm
 --with-ofi-spawner=pmi
 --with-mpi-cc=cc
 --with-pmi-version=cray
