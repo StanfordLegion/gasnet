@@ -14,4 +14,3 @@
 --with-ofi-spawner=pmi
 --with-mpi-cc=cc
 --with-pmi-version=cray
---enable-memory-kinds
