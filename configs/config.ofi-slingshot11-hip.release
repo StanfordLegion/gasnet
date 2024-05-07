@@ -1,0 +1,17 @@
+--enable-segment-fast
+--enable-par
+--disable-seq
+--disable-parsync
+--enable-pthreads
+
+--disable-auto-conduit-detect
+--enable-ofi
+
+--enable-pshm
+--enable-mpi-compat
+
+--with-ofi-provider=cxi
+--with-ofi-spawner=pmi
+--with-mpi-cc=cc
+--with-pmi-version=cray
+--enable-kind-hip
