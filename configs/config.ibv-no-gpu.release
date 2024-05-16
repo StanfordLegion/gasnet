@@ -1,0 +1,13 @@
+--enable-segment-fast
+--enable-par
+--disable-seq
+--disable-parsync
+--enable-pthreads
+
+--disable-auto-conduit-detect
+--enable-ibv
+
+--enable-pshm
+--enable-mpi-compat
+
+--with-ibv-max-hcas=4
