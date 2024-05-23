@@ -101,8 +101,8 @@ $(GASNET_SOURCE_DIR)/configure : $(GASNET_VERSION).tar.gz
 $(GASNET_SOURCE_DIR)/cross-configure : $(GASNET_SOURCE_DIR)/configure
 	ln -sf $(GASNET_SOURCE_DIR)/other/contrib/$(CROSS_CONFIGURE) $@
 
-# the GASNet-EX team makes prerelease snapshots available if you ask nicely -
-#  this rule is a helper to automatically download one of those
-GASNet-EX-snapshot.tar.gz :
-	echo 'Downloading GASNet-EX snapshot tarball...'
-	@wget -q -O $@ $(GASNETEX_SNAPSHOT_SOURCE_URL)
+# The GASNet stable branch tracks work that is (sometimes) unreleased, and advances from time to time (relative to releases)
+GASNET_STABLE_SOURCE_URL ?= https://bitbucket.org/berkeleylab/gasnet/downloads/GASNet-stable.tar.gz
+GASNet-stable.tar.gz :
+	echo 'Downloading GASNet stable tarball...'
+	@wget -q -O $@ $(GASNET_STABLE_SOURCE_URL)
