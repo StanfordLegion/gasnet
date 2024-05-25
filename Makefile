@@ -48,6 +48,27 @@ $(error LEGION_GASNET_CONDUIT=ofi requires that LEGION_GASNET_SYSTEM must be set
 endif
 endif
 
+# detect desired GPU based on Legion configuration
+ifeq ($(origin GASNET_GPU_CONFIGURE_ARGS),undefined)
+  # memory kinds are supported only in certain conduits
+  ifeq ($(findstring ibv,$(LEGION_GASNET_CONDUIT)),ibv)
+    ifeq ($(strip $(USE_CUDA)),1)
+      GASNET_GPU_CONFIGURE_ARGS += --enable-kind-cuda-uva
+    endif
+    ifeq ($(strip $(USE_HIP)),1)
+      GASNET_GPU_CONFIGURE_ARGS += --enable-kind-hip
+    endif
+  endif
+  ifeq ($(findstring ofi,$(LEGION_GASNET_CONDUIT)),ofi)
+    ifeq ($(strip $(USE_CUDA)),1)
+      GASNET_GPU_CONFIGURE_ARGS += --enable-kind-cuda-uva
+    endif
+    ifeq ($(strip $(USE_HIP)),1)
+      GASNET_GPU_CONFIGURE_ARGS += --enable-kind-hip
+    endif
+  endif
+endif
+
 # there are three relevant directories for a build:
 #  GASNET_SOURCE_DIR - directory in which the tarball is unpacked
 #  GASNET_BUILD_DIR  - directory in which configure is run and build performed
@@ -89,7 +110,7 @@ install : $(GASNET_BUILD_DIR)/config.status
 
 $(GASNET_BUILD_DIR)/config.status : $(GASNET_CONFIG) $(CONFIGURE)
 	mkdir -p $(GASNET_BUILD_DIR)
-	cd $(GASNET_BUILD_DIR); $(CONFIGURE) --prefix=$(GASNET_INSTALL_DIR) --with-cflags="$(GASNET_CFLAGS)" --with-mpi-cflags="$(GASNET_CFLAGS)" --with-cxxflags="$(GASNET_CXXFLAGS)" `cat $(realpath $(GASNET_CONFIG))` $(GASNET_EXTRA_CONFIGURE_ARGS)
+	cd $(GASNET_BUILD_DIR); $(CONFIGURE) --prefix=$(GASNET_INSTALL_DIR) --with-cflags="$(GASNET_CFLAGS)" --with-mpi-cflags="$(GASNET_CFLAGS)" --with-cxxflags="$(GASNET_CXXFLAGS)" `cat $(realpath $(GASNET_CONFIG))` $(GASNET_GPU_CONFIGURE_ARGS) $(GASNET_EXTRA_CONFIGURE_ARGS)
 
 $(GASNET_SOURCE_DIR)/configure : $(GASNET_VERSION).tar.gz
 	mkdir -p $(GASNET_SOURCE_DIR)
