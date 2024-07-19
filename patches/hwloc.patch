@@ -1,0 +1,11 @@
+--- a/other/hwloc/gasnet_hwloc.c
++++ b/other/hwloc/gasnet_hwloc.c
+@@ -365,7 +365,7 @@ char *gasneti_getenv_hwloc_withdefault(const char *keyname, const char *dflt_val
+     cpuset = hwloc_bitmap_alloc();
+     if (!cpuset ||
+         (hwloc_topology_load(topology) < 0) ||
+-        (hwloc_get_cpubind(topology, cpuset, HWLOC_CPUBIND_PROCESS) < 0 )) {
++        (hwloc_get_cpubind(topology, cpuset, HWLOC_CPUBIND_THREAD) < 0 )) {
+       // failed to query cpu binding from hwloc
+       goto out_bad_cpuset;
+     }

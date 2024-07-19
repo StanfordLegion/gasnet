@@ -3,6 +3,10 @@ GASNET_VERSION ?= GASNet-2024.5.0
 # these patches are applied to the unpacked GASNet source directory before
 #  running configure
 PATCHES =
+ifneq ($(findstring GASNet-2024.5,$(GASNET_VERSION)),)
+# hwloc.patch fixes an issue with core binding that appears on the OFI CXI provider
+PATCHES += patches/hwloc.patch
+endif
 ifneq ($(findstring GASNet-2022.9,$(GASNET_VERSION)),)
 # ofi-warning.patch silences a harmless warning for ofi-conduit/Omni-Path on 2022.9.[02]
 PATCHES += patches/ofi-warning.patch
