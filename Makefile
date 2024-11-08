@@ -6,6 +6,9 @@ PATCHES =
 ifneq ($(findstring GASNet-2024.5,$(GASNET_VERSION)),)
 # hwloc.patch fixes an issue with core binding that appears on the OFI CXI provider
 PATCHES += patches/hwloc.patch
+# The following two patches address GASNet bugs 4752 and 4753 on the OFI conduit
+PATCHES += patches/ofi-recvmsg-retry.patch
+PATCHES += patches/ofi-race.patch
 endif
 ifneq ($(findstring GASNet-2022.9,$(GASNET_VERSION)),)
 # ofi-warning.patch silences a harmless warning for ofi-conduit/Omni-Path on 2022.9.[02]
