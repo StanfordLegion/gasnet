@@ -1,0 +1,82 @@
+From 67b51846de4bf2bb2d38eaf4a42e66163494a60d Mon Sep 17 00:00:00 2001
+From: "Paul H. Hargrove" <PHHargrove@lbl.gov>
+Date: Tue, 1 Oct 2024 13:13:34 -0700
+Subject: [PATCH] ofi: fix fi_recvmsg() retry logic (bug 4752)
+
+This commit corrects a critical flaw (reported as bug 4752) in the
+logic to deal with an `FI_EAGAIN` return from `fi_recvmsg()` when
+reposting an AM receive buffer.  The original issue was reported as
+bug 4376 which was resolved as FIXED with the merge of PR#519, first
+appearing in the 2022.3.0 release.
+
+The original code was intended to retry posts of buffers held on a
+retry list on *every* call to `gasnetc_ofi_am_recv_poll()`.  However,
+the loop over multiple calls to `fi_cq_read()` would terminate via
+`return` if there were less than `GASNETC_OFI_EVENTS_PER_POLL` events
+to reap from the Cq (16 by default) OR if `GASNETC_OFI_PAR_TRYLOCK()`
+found the lock to be held by another thread.  As a result, even in a
+run without thread contention, the critical reposting operation was
+only reachable in the presence of sufficient bursts of Cq event
+(corresponding to inbound AMs).
+
+Subsequent to the initial work around, commit 28af0fd90b added tracing
+and stats, which replaced the `return` with `goto out`.  While a
+correctly placed `out:` would have resolved the current defect, it was
+instead placed in a way which preserved the (flawed) behavior in which
+`fi_recvmsg()` retries are skipped on early termination of the loop
+over `fi_cq_read()`.
+
+This commit replaces use of `goto` with `break`, except in the case we
+detect that an exit is in progress (since reposting might risk making
+an exit-on-error worse).  This use of `break` should be more robust to
+future human error, since it more clearly indicates the intent to
+terminate (only) the loop early.  This might be marginally more
+friendly to compiler analysis as well.
+
+Resolves bug 4752: "Incomplete work-around for bug 4376 (FI_EAGAIN
+when reposting multi-recv buffer)"
+---
+ ofi-conduit/gasnet_ofi.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/ofi-conduit/gasnet_ofi.c b/ofi-conduit/gasnet_ofi.c
+index c820c35f3..c8e1d6224 100644
+--- a/ofi-conduit/gasnet_ofi.c
++++ b/ofi-conduit/gasnet_ofi.c
+@@ -2339,7 +2339,7 @@ void gasnetc_ofi_am_recv_poll(int is_request)
+ 
+     int count;
+     for (count = 0; count < GASNETC_OFI_EVENTS_PER_POLL; ++count) {
+-        if(EBUSY == GASNETC_OFI_PAR_TRYLOCK(lock_p)) goto out;
++        if(EBUSY == GASNETC_OFI_PAR_TRYLOCK(lock_p)) break;
+ 
+         /* Read from Completion Queue */
+         struct fi_cq_data_entry re = {0};
+@@ -2347,13 +2347,13 @@ void gasnetc_ofi_am_recv_poll(int is_request)
+ 
+         if (ret == -FI_EAGAIN) {
+             GASNETC_OFI_PAR_UNLOCK(lock_p);
+-            goto out;
++            break;
+         } 
+         if_pf (ret < 0) {
+             struct fi_cq_err_entry e = {0};
+             gasnetc_fi_cq_readerr(cq, &e ,0);
+             GASNETC_OFI_PAR_UNLOCK(lock_p);
+-            if_pf (gasnetc_is_exit_error(e)) goto out;
++            if_pf (gasnetc_is_exit_error(e)) goto error_out;
+             gasnetc_ofi_fatalerror("fi_cq_read for am_recv_poll failed with error", -e.err);
+         }
+ 
+@@ -2456,7 +2456,7 @@ void gasnetc_ofi_am_recv_poll(int is_request)
+     }
+ #endif
+ 
+-out:
++error_out:
+     if (is_request) {
+         GASNETI_TRACE_EVENT_VAL(X, CQ_READ_REQ, count);
+     } else {
+-- 
+2.46.2
+

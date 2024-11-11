@@ -1,0 +1,37 @@
+From bc3e692a96be360b28c794e657def97367575191 Mon Sep 17 00:00:00 2001
+From: "Paul H. Hargrove" <PHHargrove@lbl.gov>
+Date: Thu, 3 Oct 2024 16:12:42 -0700
+Subject: [PATCH] ofi: correct race on final_cntr (bug 4753)
+
+This commit corrects the race condition reported in bug 4753 by
+ensuring that the read of `header->final_cntr` can never observe a
+value older than the atomic increment of `header->consumed_cntr`.
+
+Resolves bug 4753:
+"ofi: race condition in multi-receive message accounting"
+---
+ ofi-conduit/gasnet_ofi.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/ofi-conduit/gasnet_ofi.c b/ofi-conduit/gasnet_ofi.c
+index 789edfd85..8f3daf8ef 100644
+--- a/ofi-conduit/gasnet_ofi.c
++++ b/ofi-conduit/gasnet_ofi.c
+@@ -2392,9 +2392,12 @@ void gasnetc_ofi_am_recv_poll(int is_request)
+ 
+         // Repost if either not using FI_MULTI_RECV
+         // OR matched "final" and "consumed" counters indicate last AM handler has completed
++        uint64_t consumed;
+         if (!maybe_multi_recv ||
+-            ((GASNETI_ATOMIC_MAX & header->final_cntr) ==
+-             (uint64_t) gasnetc_paratomic_add(&header->consumed_cntr, 1, GASNETI_ATOMIC_ACQ))) {
++            // Note: use of ACQ fence and comma operator ensure the read of final_cntr
++            // cannot be "stale" relative to the increment of consumed_cntr.
++            ((consumed = gasnetc_paratomic_add(&header->consumed_cntr, 1, GASNETI_ATOMIC_ACQ)),
++             ((GASNETI_ATOMIC_MAX & header->final_cntr) == consumed))) {
+             struct fi_msg* am_buff_msg = &metadata->am_buff_msg;
+             GASNETC_OFI_LOCK(&gasnetc_ofi_locks.am_rx);
+             int post_ret = fi_recvmsg(ep, am_buff_msg, maybe_multi_recv);
+-- 
+2.46.2
+
