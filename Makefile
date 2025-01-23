@@ -17,12 +17,6 @@ PATCHES += patches/ofi-warning.patch
 PATCHES += patches/ofi-old-psm2.patch
 endif
 
-ifeq ($(findstring excalibur,$(shell uname -n)),excalibur)
-CROSS_CONFIGURE ?= cross-configure-cray-aries-slurm
-endif
-ifeq ($(findstring cori,$(shell uname -n)),cori)
-CROSS_CONFIGURE ?= cross-configure-cray-aries-slurm
-endif
 ifeq ($(origin CROSS_CONFIGURE),undefined)
   # try to detect appropriate cross-configure for Cray systems
   ifdef CRAYPE_NETWORK_TARGET
