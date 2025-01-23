@@ -17,9 +17,6 @@ PATCHES += patches/ofi-warning.patch
 PATCHES += patches/ofi-old-psm2.patch
 endif
 
-ifeq ($(findstring daint,$(shell uname -n)),daint)
-CROSS_CONFIGURE ?= cross-configure-cray-aries-slurm
-endif
 ifeq ($(findstring excalibur,$(shell uname -n)),excalibur)
 CROSS_CONFIGURE ?= cross-configure-cray-aries-slurm
 endif
