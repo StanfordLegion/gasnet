@@ -9,6 +9,7 @@ PATCHES += patches/hwloc.patch
 # The following two patches address GASNet bugs 4752 and 4753 on the OFI conduit
 PATCHES += patches/ofi-recvmsg-retry.patch
 PATCHES += patches/ofi-race.patch
+PATCHES += patches/cumemmap.patch
 endif
 ifneq ($(findstring GASNet-2022.9,$(GASNET_VERSION)),)
 # ofi-warning.patch silences a harmless warning for ofi-conduit/Omni-Path on 2022.9.[02]
