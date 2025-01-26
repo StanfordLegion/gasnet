@@ -1,0 +1,14 @@
+diff --git a/other/kinds/gasnet_cuda_uva.c b/other/kinds/gasnet_cuda_uva.c
+index d1d7bd8be..5d2bbf4b7 100644
+--- a/other/kinds/gasnet_cuda_uva.c
++++ b/other/kinds/gasnet_cuda_uva.c
+@@ -112,7 +112,8 @@ static int gasneti_MK_Segment_Create_cuda_uva(
+     if ((result = cuCtxPushCurrent(ctx)) ||
+         (result = cuCtxGetDevice(&dev))  ||
+         (result = cuCtxPopCurrent(&ctx))) {
+-      gasneti_fatalerror("Failed to query CUDA device of client-allocated memory: "
++      gasneti_console_message("WARNING",
++                         "Failed to query CUDA device of client-allocated memory: "
+                          GASNETI_CURESULT_FMT, GASNETI_CURESULT_STRING(result));
+     } else if (dev != kind->dev) {
+       gasneti_fatalerror("gex_Segment_Create(CUDA_UVA) with memory associated with wrong device");
