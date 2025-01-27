@@ -1,14 +1,34 @@
 diff --git a/other/kinds/gasnet_cuda_uva.c b/other/kinds/gasnet_cuda_uva.c
-index d1d7bd8be..5d2bbf4b7 100644
+index d1d7bd8..ece8f44 100644
 --- a/other/kinds/gasnet_cuda_uva.c
 +++ b/other/kinds/gasnet_cuda_uva.c
-@@ -112,7 +112,8 @@ static int gasneti_MK_Segment_Create_cuda_uva(
+@@ -73,6 +73,7 @@ static int gasneti_MK_Segment_Create_cuda_uva(
+   CUresult result;
+   void * to_free = NULL;
+   int retval = GASNET_OK;
++  int use_sync_memops = kind->use_sync_memops;
+
+   gasneti_check_cudacall(cuCtxPushCurrent(kind->ctx));
+
+@@ -109,6 +110,12 @@ static int gasneti_MK_Segment_Create_cuda_uva(
+     // We currently accept memory allocated by *any* context for the same device.
+     // TODO: should we be more strict by checking equality of contexts instead of devices?
+     CUdevice dev;
++    if (ctx == NULL) {
++      // No context, even though other attributres are OK.
++      // This would occur, for instance, with a cuMemMap() (which does
++      // not support the SYNC_MEMOPS attribute).  See bug TBD.
++      use_sync_memops = 0;
++    } else
      if ((result = cuCtxPushCurrent(ctx)) ||
          (result = cuCtxGetDevice(&dev))  ||
          (result = cuCtxPopCurrent(&ctx))) {
--      gasneti_fatalerror("Failed to query CUDA device of client-allocated memory: "
-+      gasneti_console_message("WARNING",
-+                         "Failed to query CUDA device of client-allocated memory: "
-                          GASNETI_CURESULT_FMT, GASNETI_CURESULT_STRING(result));
-     } else if (dev != kind->dev) {
-       gasneti_fatalerror("gex_Segment_Create(CUDA_UVA) with memory associated with wrong device");
+@@ -131,7 +138,7 @@ static int gasneti_MK_Segment_Create_cuda_uva(
+     addr = to_free = (void *) dptr;
+   }
+
+-  if (kind->use_sync_memops) {
++  if (use_sync_memops) {
+     int one = 1;
+     gasneti_check_cudacall(cuPointerSetAttribute(&one, CU_POINTER_ATTRIBUTE_SYNC_MEMOPS, dptr));
+   }
