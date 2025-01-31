@@ -9,6 +9,9 @@ PATCHES += patches/hwloc.patch
 # The following two patches address GASNet bugs 4752 and 4753 on the OFI conduit
 PATCHES += patches/ofi-recvmsg-retry.patch
 PATCHES += patches/ofi-race.patch
+# The following patch address the GASNet bug 4767 regarding registering cuMemMap memory 
+# https://gasnet-bugs.lbl.gov/bugzilla/show_bug.cgi?id=4767
+PATCHES += patches/cumemmap.patch
 endif
 ifneq ($(findstring GASNet-2022.9,$(GASNET_VERSION)),)
 # ofi-warning.patch silences a harmless warning for ofi-conduit/Omni-Path on 2022.9.[02]
