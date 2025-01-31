@@ -17,7 +17,7 @@ index d1d7bd8..ece8f44 100644
 +    if (ctx == NULL) {
 +      // No context, even though other attributres are OK.
 +      // This would occur, for instance, with a cuMemMap() (which does
-+      // not support the SYNC_MEMOPS attribute).  See bug TBD.
++      // not support the SYNC_MEMOPS attribute).  See bug 4767.
 +      use_sync_memops = 0;
 +    } else
      if ((result = cuCtxPushCurrent(ctx)) ||
