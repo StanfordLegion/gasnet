@@ -14,7 +14,7 @@ PATCHES += patches/ofi-race.patch
 PATCHES += patches/cumemmap.patch
 # Fixes a crash in GASNet collectives used in Realm startup
 # https://github.com/StanfordLegion/legion/issues/1821#issuecomment-2605908483
-PATCHES += patches/bug1821.patch
+PATCHES += patches/bug1821.patch patches/bug1821-printf-new.patch
 endif
 ifneq ($(findstring GASNet-2022.9,$(GASNET_VERSION)),)
 # ofi-warning.patch silences a harmless warning for ofi-conduit/Omni-Path on 2022.9.[02]

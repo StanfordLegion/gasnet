@@ -1,0 +1,20 @@
+diff --git a/extended-ref/coll/gasnet_refcoll.c b/extended-ref/coll/gasnet_refcoll.c
+index 275fbbbae..979d12c20 100644
+--- a/extended-ref/coll/gasnet_refcoll.c
++++ b/extended-ref/coll/gasnet_refcoll.c
+@@ -1096,6 +1096,7 @@ GASNETI_INLINE(gasnete_coll_p2p_memcpy_reqh_inner)
+   gasnete_coll_team_t team = gasnete_coll_team_lookup(team_id);
+   gasnete_coll_p2p_t *p2p = gasnete_coll_p2p_get_locked(team, sequence, 0, !!decrement, 0);
+ 
++  gasneti_console_message("M", "%p %lu", dest, (unsigned long)nbytes);
+   GASNETE_FAST_UNALIGNED_MEMCPY(dest, buf, nbytes);
+   if (decrement) {
+     gasneti_weakatomic_decrement(&p2p->counter[0], GASNETI_ATOMIC_REL);
+@@ -2433,6 +2434,7 @@ gasnete_tm_broadcast_nb_default(gex_TM_t e_tm, gex_Rank_t root,
+                                 size_t nbytes, gex_Flags_t flags,
+                                 uint32_t sequence GASNETI_THREAD_FARG)
+ {
++  gasneti_console_message("B", "%p %lu", dst, (unsigned long)nbytes);
+   GASNETI_TRACE_TM_BROADCAST(COLL_BROADCAST_NB,e_tm,root,dst,src,nbytes,flags);
+   gasnet_team_handle_t team = gasneti_import_tm_nonpair(e_tm)->_coll_team;
+   int coll_flags = GASNET_COLL_LOCAL | GASNET_COLL_IN_MYSYNC | GASNET_COLL_OUT_MYSYNC;
