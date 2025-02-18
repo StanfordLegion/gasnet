@@ -12,6 +12,9 @@ PATCHES += patches/ofi-race.patch
 # The following patch address the GASNet bug 4767 regarding registering cuMemMap memory 
 # https://gasnet-bugs.lbl.gov/bugzilla/show_bug.cgi?id=4767
 PATCHES += patches/cumemmap.patch
+# Fixes a crash in GASNet collectives used in Realm startup
+# https://github.com/StanfordLegion/legion/issues/1821#issuecomment-2605908483
+PATCHES += patches/bug1821.patch
 endif
 ifneq ($(findstring GASNet-2022.9,$(GASNET_VERSION)),)
 # ofi-warning.patch silences a harmless warning for ofi-conduit/Omni-Path on 2022.9.[02]
