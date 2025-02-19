@@ -12,6 +12,11 @@ PATCHES += patches/ofi-race.patch
 # The following patch address the GASNet bug 4767 regarding registering cuMemMap memory 
 # https://gasnet-bugs.lbl.gov/bugzilla/show_bug.cgi?id=4767
 PATCHES += patches/cumemmap.patch
+# The following patches address Realm crashes at startup in GASNet collectives:
+#  1. Run IBV progress function only when safe
+#  2. Add a missing fence required to avoid races on PPC/ARM
+# https://github.com/StanfordLegion/legion/issues/1821
+PATCHES += patches/bug1821-ibv-progress.patch patches/bug1821-fence.patch
 endif
 ifneq ($(findstring GASNet-2022.9,$(GASNET_VERSION)),)
 # ofi-warning.patch silences a harmless warning for ofi-conduit/Omni-Path on 2022.9.[02]

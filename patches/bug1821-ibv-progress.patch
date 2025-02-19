@@ -1,0 +1,13 @@
+diff --git a/ibv-conduit/gasnet_core_sndrcv.c b/ibv-conduit/gasnet_core_sndrcv.c
+index 783c1c6..5245224 100644
+--- a/ibv-conduit/gasnet_core_sndrcv.c
++++ b/ibv-conduit/gasnet_core_sndrcv.c
+@@ -1145,7 +1145,7 @@ gasnetc_cep_t *gasnetc_bind_cep_inner(gasnetc_EP_t ep, gasnetc_epid_t epid, gasn
+       if (should_poll_rcv && !gasnetc_sema_read(GASNETC_CEP_SQ_SEMA(_cep))) {  \
+         gasnetc_poll_rcv_all(_ep, GASNETC_RCV_REAP_LIMIT GASNETI_THREAD_PASS); \
+         MAYBE_POLL_RCV_PSHM();                                                 \
+-        GASNETI_PROGRESSFNS_RUN();                                             \
++        if (sreq->opcode != GASNETC_OP_AM) { GASNETI_PROGRESSFNS_RUN(); }      \
+       }                                                                        \
+     } while (0)
+ #else
