@@ -1,28 +1,19 @@
 diff --git a/extended-ref/coll/gasnet_refcoll.c b/extended-ref/coll/gasnet_refcoll.c
-index 275fbbbae..bb87abacb 100644
+index 275fbbbae..c88266203 100644
 --- a/extended-ref/coll/gasnet_refcoll.c
 +++ b/extended-ref/coll/gasnet_refcoll.c
-@@ -1096,6 +1096,7 @@ GASNETI_INLINE(gasnete_coll_p2p_memcpy_reqh_inner)
-   gasnete_coll_team_t team = gasnete_coll_team_lookup(team_id);
-   gasnete_coll_p2p_t *p2p = gasnete_coll_p2p_get_locked(team, sequence, 0, !!decrement, 0);
- 
-+  gasneti_console_message("M", "%p %lu", dest, (unsigned long)nbytes);
-   GASNETE_FAST_UNALIGNED_MEMCPY(dest, buf, nbytes);
-   if (decrement) {
-     gasneti_weakatomic_decrement(&p2p->counter[0], GASNETI_ATOMIC_REL);
-@@ -1192,6 +1193,7 @@ int gasnete_tm_p2p_memcpy(gasnete_coll_op_t *op, gex_Rank_t rank, void *dst,
-   const uint32_t team_id = op->team->team_id;
- 
-   gasneti_assert(nbytes <= gex_AM_LUBRequestMedium());
-+  gasneti_assert_always(dst != NULL);
- 
-   return gex_AM_RequestMedium(op->e_tm, rank, gasneti_handleridx(gasnete_coll_p2p_memcpy_reqh),
-                               src, nbytes, GEX_EVENT_NOW, flags, PACK(dst), team_id, seq_num, 1);
-@@ -2433,6 +2435,7 @@ gasnete_tm_broadcast_nb_default(gex_TM_t e_tm, gex_Rank_t root,
-                                 size_t nbytes, gex_Flags_t flags,
-                                 uint32_t sequence GASNETI_THREAD_FARG)
- {
-+  gasneti_console_message("B", "%p %lu", dst, (unsigned long)nbytes);
-   GASNETI_TRACE_TM_BROADCAST(COLL_BROADCAST_NB,e_tm,root,dst,src,nbytes,flags);
-   gasnet_team_handle_t team = gasneti_import_tm_nonpair(e_tm)->_coll_team;
-   int coll_flags = GASNET_COLL_LOCAL | GASNET_COLL_IN_MYSYNC | GASNET_COLL_OUT_MYSYNC;
+@@ -1251,12 +1253,14 @@ int gasnete_tm_p2p_send_data(gasnete_coll_op_t *op, gasnete_coll_p2p_t *p2p,
+                              gex_Flags_t flags GASNETI_THREAD_FARG) {
+   struct gasnete_tm_p2p_send_struct *status = (struct gasnete_tm_p2p_send_struct *)p2p->data;
+   if (p2p->state[offset] == 1) {
++    gasneti_sync_reads();
+     size_t sent = status[offset].sent;
+     gasneti_assert_uint(nbytes ,>=, sent);
+     size_t count = nbytes - sent;
+     if_pt (count) {
+       void *tmp = (void *)((uintptr_t)src + sent);
+       void *addr = status[offset].addr;
++      gasneti_assert_always(addr != NULL);
+       const size_t limit = gex_AM_LUBRequestMedium();
+       const int more = (count > limit);
+       if (more) count = limit;
