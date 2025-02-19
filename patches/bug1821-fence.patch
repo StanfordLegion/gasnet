@@ -13,7 +13,7 @@ index 275fbbbae..c88266203 100644
      if_pt (count) {
        void *tmp = (void *)((uintptr_t)src + sent);
        void *addr = status[offset].addr;
-+      gasneti_assert_always(addr != NULL);
++      gasneti_assert(addr != NULL);
        const size_t limit = gex_AM_LUBRequestMedium();
        const int more = (count > limit);
        if (more) count = limit;
