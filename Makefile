@@ -131,5 +131,5 @@ $(GASNET_SOURCE_DIR)/cross-configure : $(GASNET_SOURCE_DIR)/configure
 # The GASNet stable branch tracks work that is (sometimes) unreleased, and advances from time to time (relative to releases)
 GASNET_STABLE_SOURCE_URL ?= https://bitbucket.org/berkeleylab/gasnet/downloads/GASNet-stable.tar.gz
 GASNet-stable.tar.gz :
-	echo 'Downloading GASNet stable tarball...'
-	@wget -q -O $@ $(GASNET_STABLE_SOURCE_URL)
+	@echo 'Downloading GASNet stable tarball...'
+	wget -O $@ $(GASNET_STABLE_SOURCE_URL)
