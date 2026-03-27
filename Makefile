@@ -132,4 +132,4 @@ $(GASNET_SOURCE_DIR)/cross-configure : $(GASNET_SOURCE_DIR)/configure
 GASNET_STABLE_SOURCE_URL ?= https://bitbucket.org/berkeleylab/gasnet/downloads/GASNet-stable.tar.gz
 GASNet-stable.tar.gz :
 	@echo 'Downloading GASNet stable tarball...'
-	wget -O $@ $(GASNET_STABLE_SOURCE_URL)
+	curl -L -o $@ $(GASNET_STABLE_SOURCE_URL)
